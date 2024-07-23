@@ -21,9 +21,19 @@ app.get("/logout",(req,res)=>{
     res.cookie("token","");
     res.redirect("/login");
 })
-app.get("/profile", isLoggedIn,(req,res)=>{
-    res.send("profile page");
-    console.log(req.user);
+app.get("/profile", isLoggedIn,async (req,res)=>{
+    let user = await userModel.findOne({email: req.user.email}).populate("posts");
+    res.render("profile",{user});
+})
+app.post("/post", isLoggedIn,async (req,res)=>{
+    let user = await userModel.findOne({email: req.user.email});
+    let {content} = req.body;
+    let post = await postModel.create({
+        user: user._id,
+        content
+    });
+    user.posts.push(post._id);
+    await user.save();
 })
 
 app.post("/create",async (req,res)=>{
@@ -42,7 +52,7 @@ app.post("/create",async (req,res)=>{
             })
             let token = jwt.sign({email: email, userid: user._id}, "secretKey");
             res.cookie("token",token);
-            res.send("registered.");
+            res.redirect("profile");
         })
     })
 
@@ -56,7 +66,7 @@ app.post("/login",async (req,res)=>{
         if(result){
             let token = jwt.sign({email: email, userid: user._id}, "secretKey");
             res.cookie("token",token);
-            return res.status(200).send("logged in successfully!");
+            return res.status(200).redirect('profile');
         } 
         else res.redirect("/login");
     })
