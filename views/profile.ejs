@@ -11,7 +11,12 @@
         <div class="w-full flex justify-end">
             <a href="/logout" class="bg-red-500 rounded-md px-4 py-2">Logout</a>
         </div>
-        <h3 class="text-[2vw]">hello, <%= user.name %></h3>
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 overflow-hidden rounded-md">
+                <img class="w-full h-full object-cover" src="/images/uploads/<%= user.profilepic %>" alt="">
+            </div>
+            <h3 class="text-[2vw]">hello, <%= user.name %></h3>
+        </div>
         <h5 class="mb-5">You can create your post here..</h5>
         <form action="/post" method="post">
             <textarea name="content" placeholder="What's on your mind..?" class="w-1/2 block resize-none p-3 bg-transparent outline-none border-2 border-zinc-800 rounded-md"></textarea>
@@ -24,9 +29,12 @@
                     <div class="post w-1/2 p-3 mb-4 border-[1px] rounded-md bg-zinc-800 border-zinc-700">
                         <h4 class="text-[1.8vw] text-blue-500 font-semibold mb-1">@<%= user.username %></h4>
                         <p class="text-[1.3vw]"><%= post.content %></p>
-                        <div class="btns flex gap-6 mt-3">
-                            <a class="text-blue-500" href="">Like</a>
-                            <a class="text-zinc-500" href="">edit</a>
+                        <small class="mt-2 inline-block"><%= post.likes.length %> likes</small>
+                        <div class="btns flex gap-6 mt-1">
+                            <a class="text-blue-500" href="/like/<%= post._id %>">
+                                <%= post.likes.indexOf(user._id) === -1 ? "Like" : "Unlike" %>
+                            </a>
+                            <a class="text-zinc-500" href="/edit/<%= post._id %>">edit</a>
                         </div>
                     </div>
                 <% }) %>
